@@ -86,7 +86,6 @@ int pocetDni(char *datum) {
     return pocetDni;
 }
 
-
 void odmena(FILE **fr) {
     if (*fr != NULL) {
         #define ODMENA_STARE 5.1
