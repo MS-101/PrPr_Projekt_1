@@ -34,56 +34,53 @@ int vypis(FILE **fr) {
     return 0;
 }
 
-int pocetDniVMesiaci(int mesiac, int rok) {
-	switch(mesiac) {
-		case 1: case 3: case 5: case 7: case 8: case 10: case 12:
-			return 31;
-			break;
-		case 4: case 6: case 9: case 11:
-			return 30;
-			break;
-		case 2:
-			if (rok % 4 == 0) {
-				return 29;
-			} else {
-				return 28;
-			}
-			break;
-	}
-}
-
-int pocetDniVRoku(int rok) {
-	if (rok % 4 == 0) {
-		return 366;
-	} else {
-		return 365;
-	}
-}
-
-int pocetDni(char *datum) {
-    int pocetDni, rok, mesiac, den, i;
+int pracovalRok(char *datum, char *aktualnyDatum) {
+    int i;
+    int rok, mesiac, den;
+    int aktualnyRok, aktualnyMesiac, aktualnyDen;
     char rokStr[5], mesiacStr[3], denStr[3];
+    char aktualnyRokStr[5], aktualnyMesiacStr[3], aktualnyDenStr[3];
     for (i = 0; i < 4; i++) {
         rokStr[i] = datum[i];
+        aktualnyRokStr[i] = aktualnyDatum[i];
     }
     rokStr[4] = '\0';
-    mesiacStr[0] = datum[4];
-    mesiacStr[1] = datum[5];
+    aktualnyRokStr[4] = '\0';
+    for (i = 0; i < 2; i++) {
+        mesiacStr[i] = datum[i+4];
+        aktualnyMesiacStr[i] = aktualnyDatum[i+5];
+    }
     mesiacStr[2] = '\0';
-    denStr[0] = datum[6];
-    denStr[1] = datum[7];
+    aktualnyMesiacStr[2] = '\0';
+    for (i = 0; i < 2; i++) {
+        denStr[i] = datum[i+6];
+        aktualnyDenStr[i] = aktualnyDatum[i+7];
+    }
     denStr[2] = '\0';
+    aktualnyDenStr[2] = '\0';
     rok = atoi(rokStr);
+    aktualnyRok = atoi(aktualnyRokStr);
     mesiac = atoi(mesiacStr);
+    aktualnyMesiac = atoi(aktualnyMesiacStr);
     den = atoi(denStr);
-    pocetDni = den;
-    for (i = 1; i <= mesiac; i++) {
-        pocetDni += pocetDniVMesiaci(i, rok);
+    aktualnyDen = atoi(aktualnyDenStr);
+    if (aktualnyRok - rok > 1) {
+        return 1;
+    } else if (aktualnyRok - rok == 1) {
+        if (aktualnyMesiac > mesiac) {
+            return 1;
+        } else if (aktualnyMesiac = mesiac) {
+            if (aktualnyDen >= den) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    } else {
+        return 0;
     }
-    for (i = 1; i <= rok; i++) {
-        pocetDni += pocetDniVRoku(i);
-    }
-    return pocetDni;
 }
 
 void odmena(FILE **fr) {
@@ -106,7 +103,7 @@ void odmena(FILE **fr) {
             fscanf(*fr, "%lf\n", &cena);
             fgets(datum, 9, *fr);
             fscanf(*fr, "\n");
-            if (pocetDni(aktualnyDatum) - pocetDni(datum) >= 365) {
+            if (pracovalRok(datum, aktualnyDatum)) {
                 if (typAuta == 1) {
                     odmena = cena / 100 * ODMENA_NOVE;
                 } else {
@@ -114,7 +111,6 @@ void odmena(FILE **fr) {
                 }
                 printf("%s %s %.2f\n", menoPriezvisko, spz, odmena);
             }
-
         }
     }
 }
