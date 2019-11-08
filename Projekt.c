@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int vypis(FILE **fr) {
+int vypisSuboru(FILE **fr) {
     if (*fr == NULL) {
         if ((*fr = fopen("autobazar.txt", "r")) == NULL) {
             printf("Neotvoreny subor\n");
@@ -115,19 +115,55 @@ void odmena(FILE **fr) {
     }
 }
 
-void poleZaznamov() {
+void poleSPZ(FILE **fr, char ***pole) {
+    if (*fr != NULL) {
+        if (*pole != NULL) {
+            printf("TEST\n");
+            free(*pole);
+        }
+        rewind(*fr);
+        char str[51];
+        int pocetZaznamov = 0;
+        int i, y;
+        while (fgets(str, 51, *fr) != NULL) {
+            pocetZaznamov++;
+            for (i = 0; i < 5; i++) {
+                fgets(str, 51, *fr);
+            }
+        }
+        *pole = malloc(pocetZaznamov * sizeof(char**));
+        for (i = 0; i < pocetZaznamov; i++) {
+            (*pole)[i] = malloc(8 * sizeof(char*));
+        }
+        rewind(*fr);
+        fgets(str, 51, *fr);
+        for (i = 0; i < pocetZaznamov; i++) {
+            char spz[8];
+            fscanf(*fr, "%s\n", spz);
+            spz[8] = '\0';
+            for (y = 0; y < 8; y++) {
+                (*pole)[i][y] = spz[y];
+            }
+            for (y = 0; y < 5; y++) {
+                fgets(str, 51, *fr);
+            }
+        }
+    }
+}
+
+void vypisPola() {
 
 }
 
-void spz() {
+void maxPocetnostPola() {
 
 }
 
-void maxPocetnost() {
+void palindromVPoli() {
 
 }
 
-void palindrom() {
+void zistiPredaj() {
 
 }
 
@@ -140,28 +176,25 @@ int koniec(FILE **fr) {
     return 0;
 }
 
-void zistiPredaj() {
-
-}
-
 int main() {
     FILE *fr = NULL;
+    char **pole = NULL;
     while (1)  {
         switch (getchar()) {
             case 'v':
-                vypis(&fr);
+                vypisSuboru(&fr);
                 break;
             case 'o':
                 odmena(&fr);
                 break;
             case 'n':
-                poleZaznamov();
+                poleSPZ(&fr, &pole);
                 break;
             case 's':
-                spz();
+                vypisPola();
                 break;
             case 'm':
-                maxPocetnost();
+                maxPocetnostPola();
                 break;
             case 'p':
                 palindrom();
