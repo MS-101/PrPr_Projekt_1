@@ -115,29 +115,28 @@ void odmena(FILE **fr) {
     }
 }
 
-void poleSPZ(FILE **fr, char ***pole) {
+void vytvorPole(FILE **fr, char ***pole, int *pocetZaznamov) {
     if (*fr != NULL) {
         if (*pole != NULL) {
-            printf("TEST\n");
             free(*pole);
         }
         rewind(*fr);
         char str[51];
-        int pocetZaznamov = 0;
+        *pocetZaznamov = 0;
         int i, y;
         while (fgets(str, 51, *fr) != NULL) {
-            pocetZaznamov++;
+            (*pocetZaznamov)++;
             for (i = 0; i < 5; i++) {
                 fgets(str, 51, *fr);
             }
         }
-        *pole = malloc(pocetZaznamov * sizeof(char**));
-        for (i = 0; i < pocetZaznamov; i++) {
+        *pole = malloc(*pocetZaznamov * sizeof(char**));
+        for (i = 0; i < *pocetZaznamov; i++) {
             (*pole)[i] = malloc(8 * sizeof(char*));
         }
         rewind(*fr);
         fgets(str, 51, *fr);
-        for (i = 0; i < pocetZaznamov; i++) {
+        for (i = 0; i < *pocetZaznamov; i++) {
             char spz[8];
             fscanf(*fr, "%s\n", spz);
             spz[8] = '\0';
@@ -151,27 +150,128 @@ void poleSPZ(FILE **fr, char ***pole) {
     }
 }
 
-void vypisPola() {
-
+void vypisPola(char **pole, int pocetZaznamov) {
+    if (pole != NULL) {
+        int i, y;
+        for (i = 0; i < pocetZaznamov; i++) {
+            for (y = 0; y < 2; y++) {
+                printf("%c", pole[i][y]);
+            }
+            printf(" ");
+            for (y = 0; y < 3; y++) {
+                printf("%c", pole[i][y + 2]);
+            }
+            printf(" ");
+            for (y = 0; y < 2; y++) {
+                printf("%c", pole[i][y + 5]);
+            }
+            printf("\n");
+        }
+    } else {
+        printf("Pole nie je vytvorene\n");
+    }
 }
 
-void maxPocetnostPola() {
-
+void maxPocetnostPola(char **pole, int pocetZaznamov) {
+    if (pole != NULL) {
+        int i, y;
+        int pocetnostiPismen[26];
+        for (i = 0; i < 26; i++) {
+            pocetnostiPismen[i] = 0;
+        }
+        int pocetnostiCisiel[10];
+        for (i = 0; i < 10; i++) {
+            pocetnostiCisiel[i] = 0;
+        }
+        for (i = 0; i < pocetZaznamov; i++) {
+            for (y = 0; y < 7; y++) {
+                if (pole[i][y] >= 'A' && pole[i][y] <= 'Z') {
+                    pocetnostiPismen[pole[i][y] - 'A']++;
+                } else if (pole[i][y] >= '0' && pole[i][y] <= '9') {
+                    pocetnostiCisiel[pole[i][y] - '0']++;
+                }
+            }
+        }
+        int max = pocetnostiPismen[0];
+        char maxChar = 'A';
+        for (i = 1; i < 26; i++) {
+            if (pocetnostiPismen[i] > max) {
+                max = pocetnostiPismen[i];
+                maxChar = 'A' + i;
+            }
+        }
+        for (i = 0; i < 10; i++) {
+            if (pocetnostiCisiel[i] > max) {
+                max = pocetnostiCisiel[i];
+                maxChar = '0' + i;
+            }
+        }
+        printf("%c %d\n", maxChar, max);
+    } else {
+        printf("Pole nie je vytvorene\n");
+    }
 }
 
-void palindromVPoli() {
-
+void palindromVPoli(char **pole, int pocetZaznamov) {
+    if (pole != NULL) {
+        int i, y;
+        int jePalindrom;
+        for (i = 0; i < pocetZaznamov; i++) {
+            jePalindrom = 1;
+            for (y = 0; y < 3; y++) {
+                if (pole[i][y] != pole[i][6 - y]) {
+                    jePalindrom = 0;
+                    break;
+                }
+            }
+            if (jePalindrom == 1) {
+                printf("%c%c\n", pole[i][0], pole[i][1]);
+            }
+        }
+    } else {
+        printf("Pole nie je vytvorene\n");
+    }
 }
 
-void zistiPredaj() {
-
+void zistiPredaj(char ** pole, int pocetZaznamov) {
+    if (pole != NULL) {
+        int i, y;
+        int pocetnost, indexMax, maxPocetnost = 0;
+        char maxPredaj[pocetZaznamov][3];
+        for (i = 0; i < pocetZaznamov; i++) {
+            pocetnost = 1;
+            for (y = i+1; y < pocetZaznamov; y++) {
+                if (pole[i][0] == pole[y][0] && pole[i][1] == pole[y][1]) {
+                    pocetnost++;
+                }
+            }
+            if (pocetnost > maxPocetnost) {
+                maxPocetnost = pocetnost;
+                indexMax = 0;
+                maxPredaj[indexMax][0] = pole[i][0];
+                maxPredaj[indexMax][1] = pole[i][1];
+                maxPredaj[indexMax][2] = '\0';
+            } else if (pocetnost == maxPocetnost) {
+                indexMax++;
+                maxPredaj[indexMax][0] = pole[i][0];
+                maxPredaj[indexMax][1] = pole[i][1];
+                maxPredaj[indexMax][2] = '\0';
+            }
+        }
+        for (i = 0; i <= indexMax; i++) {
+            printf("%s %d\n", maxPredaj[i], maxPocetnost);
+        }
+    }
 }
 
-int koniec(FILE **fr) {
+int koniec(FILE **fr, char ***pole) {
     if (*fr != NULL) {
         if (fclose(*fr) == EOF) {
             return 1;
         }
+    }
+    if (*pole != NULL) {
+        free(*pole);
     }
     return 0;
 }
@@ -179,6 +279,7 @@ int koniec(FILE **fr) {
 int main() {
     FILE *fr = NULL;
     char **pole = NULL;
+    int pocetZaznamov = 0;
     while (1)  {
         switch (getchar()) {
             case 'v':
@@ -188,22 +289,22 @@ int main() {
                 odmena(&fr);
                 break;
             case 'n':
-                poleSPZ(&fr, &pole);
+                vytvorPole(&fr, &pole, &pocetZaznamov);
                 break;
             case 's':
-                vypisPola();
+                vypisPola(pole, pocetZaznamov);
                 break;
             case 'm':
-                maxPocetnostPola();
+                maxPocetnostPola(pole, pocetZaznamov);
                 break;
             case 'p':
-                palindrom();
+                palindromVPoli(pole, pocetZaznamov);
                 break;
             case 'z':
-                zistiPredaj();
+                zistiPredaj(pole, pocetZaznamov);
                 break;
             case 'k':
-                return koniec(&fr);
+                return koniec(&fr, &pole);
                 break;
         }
     }
