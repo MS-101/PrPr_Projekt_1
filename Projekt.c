@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-int vypisSuboru(FILE **fr) {
+void vypisSuboru(FILE **fr) {
     if (*fr == NULL) {
         if ((*fr = fopen("autobazar.txt", "r")) == NULL) {
             printf("Neotvoreny subor\n");
-            return 1;
+            return;
         }
     } else {
         rewind(*fr);
@@ -31,7 +31,6 @@ int vypisSuboru(FILE **fr) {
         printf("\n");
         fscanf(*fr, "\n");
     }
-    return 0;
 }
 
 int pracovalRok(char *datum, char *aktualnyDatum) {
@@ -264,18 +263,6 @@ void zistiPredaj(char ** pole, int pocetZaznamov) {
     }
 }
 
-int koniec(FILE **fr, char ***pole) {
-    if (*fr != NULL) {
-        if (fclose(*fr) == EOF) {
-            return 1;
-        }
-    }
-    if (*pole != NULL) {
-        free(*pole);
-    }
-    return 0;
-}
-
 int main() {
     FILE *fr = NULL;
     char **pole = NULL;
@@ -304,7 +291,15 @@ int main() {
                 zistiPredaj(pole, pocetZaznamov);
                 break;
             case 'k':
-                return koniec(&fr, &pole);
+                if (fr != NULL) {
+                    if (fclose(fr) == EOF) {
+                        return 1;
+                    }
+                }
+                if (pole != NULL) {
+                    free(pole);
+                }
+                return 0;
                 break;
         }
     }
